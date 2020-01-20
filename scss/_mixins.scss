@@ -1,0 +1,83 @@
+/*
+    Adds browser-specific prefixes to properties like transition etc.
+    Example  : @include g_browserPrefix(transform, translateX(-50%));
+*/
+@mixin g_browserPrefix($g_browserPrefixProperty, $g_browserPrefixValue) {
+    @each $g_browserPrefixVendor in ('-webkit-', '-moz-', '-ms-', '-o-', '') {
+        #{$g_browserPrefixVendor}#{$g_browserPrefixProperty}: #{$g_browserPrefixValue};
+    }
+}
+
+/*
+    cross browser transitions
+    Example : @include g_transition();
+*/
+@mixin g_transition($property, $duration, $function:ease, $delay:0s){
+    -webkit-transition: $property $duration $function $delay;
+    -moz-transition: $property $duration $function $delay;
+    -o-transition: $property $duration $function $delay;
+    transition: $property $duration $function $delay;
+}
+
+/*
+    Vertical or horizontal linear gradient - covers IE 6-8, and has a fallback for older browsers
+*/
+@mixin g_gradient($start-color, $end-color, $orientation: vertical){
+    $gradient-type: if($orientation == vertical, 0, 1);
+
+    background-color: $start-color; // Old browsers
+
+    @if $gradient-type == 0 {
+        // vertical
+        background: -moz-linear-gradient(top,  $start-color 0%, $end-color 100%); /* FF3.6+ */
+        background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,$start-color), color-stop(100%,$end-color)); /* Chrome,Safari4+ */
+        background: -webkit-linear-gradient(top,  $start-color 0%,$end-color 100%); /* Chrome10+,Safari5.1+ */
+        background: -o-linear-gradient(top,  $start-color 0%,$end-color 100%); /* Opera 11.10+ */
+        background: -ms-linear-gradient(top,  $start-color 0%,$end-color 100%); /* IE10+ */
+        background: linear-gradient(to bottom,  $start-color 0%,$end-color 100%); /* W3C */
+    } @else {
+        // horizontal (UNTESTED!!)
+        background: -moz-linear-gradient(left,  $start-color 0%, $end-color 100%); /* FF3.6+ */
+        background: -webkit-gradient(left, color-stop(0%,$start-color), color-stop(100%,$end-color)); /* Chrome,Safari4+ */
+        background: -webkit-linear-gradient(left, color-stop(0%,$start-color), color-stop(100%,$end-color)); /* Chrome10+,Safari5.1+ */
+        background: -o-linear-gradient(left,  $start-color 0%,$end-color 100%); /* Opera 11.10+ */
+        background: -ms-linear-gradient(left,  $start-color 0%,$end-color 100%); /* IE10+ */
+        background: linear-gradient(to right,  $start-color 0%,$end-color 100%); /* W3C */
+    }
+
+    // gradientType determines orientation for IE
+    filter: progid:DXImageTransform.Microsoft.gradient(gradientType=#{$gradient-type}, startColorstr='#{ie-hex-str($start-color)}', endColorstr='#{ie-hex-str($end-color)}');
+
+}
+
+@mixin g_animation($property, $duration, $function:infinite, $effect:linear) {
+    -webkit-animation: $property $duration $function $effect;
+    -moz-animation: $property $duration $function $effect;
+    -o-animation: $property $duration $function $effect;
+    animation: $property $duration $function $effect;
+}
+
+// http://stackoverflow.com/questions/20150621/sass-mixin-for-animation-keyframe-which-includes-multiple-stages-and-transform-p
+@mixin g_keyframe($animationName) {
+    $browser: null;
+
+    @-webkit-keyframes #{$animationName} {
+        $browser: '-webkit-' !global;
+        @content;
+    }
+
+    @-moz-keyframes #{$animationName} {
+        $browser: '-moz-' !global;
+        @content;
+    }
+
+    @-o-keyframes #{$animationName} {
+        $browser: '-o-' !global;
+        @content;
+    }
+
+    @keyframes #{$animationName} {
+        $browser: '' !global;
+        @content;
+    }
+}
